@@ -4,6 +4,18 @@
   "type": "module",
   "description": "OpenClaw plugin for context usage monitoring and automatic conversation handoff.",
   "license": "MIT",
+  "author": "vinsew",
+  "homepage": "https://github.com/vinsew/openclaw-context-handoff#readme",
+  "bugs": {
+    "url": "https://github.com/vinsew/openclaw-context-handoff/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinsew/openclaw-context-handoff.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "index.ts",
     "scripts/agent-install.sh",
@@ -29,6 +41,5 @@
     "plugin",
     "agentic"
   ],
-  "author": "",
   "main": "index.ts"
 }

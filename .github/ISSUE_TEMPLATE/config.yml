@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/vinsew/openclaw-context-handoff/security
+    about: Please do not report security issues in public issues.

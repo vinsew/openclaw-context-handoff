@@ -1,27 +1,45 @@
 # OpenClaw Context Handoff
 
-`openclaw-context-handoff` is an OpenClaw plugin for two jobs:
+[![npm version](https://img.shields.io/npm/v/openclaw-context-handoff.svg)](https://www.npmjs.com/package/openclaw-context-handoff)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-plugin-black.svg)](https://github.com/vinsew/openclaw-context-handoff)
 
-- inject current context usage into each conversation turn
-- create and maintain a handoff file when a conversation gets too full
+`openclaw-context-handoff` is an OpenClaw plugin for monitoring context usage
+and handing conversations off safely before a session gets too full.
 
-It is designed for agent-first installation. A human can publish the repo, but
-an OpenClaw agent should be able to read this repository and install it
-without manual editing of `openclaw.json`.
+It is built for agent-first workflows:
 
-## What it does
+- inject context usage into each turn
+- warn before the window gets tight
+- automatically write a handoff file at the critical threshold
+- let a new session continue from the latest handoff when the user says
+  "continue", "resume", or similar
 
-- Injects context usage percentage on each turn
-- Warns when usage crosses the warning threshold
-- Automatically writes a handoff file at the critical threshold
-- Injects a startup bootstrap policy file for new sessions
-- Supports manual handoff requests such as "write handoff"
-- Appends follow-up notes to the latest handoff file when the same session
-  continues after critical threshold
+## Why this exists
 
-## Install
+OpenClaw sessions are isolated. When a long conversation approaches the model
+context limit, users need a reliable way to carry work into a new session.
 
-### From npm
+This plugin standardizes that flow by doing two things:
+
+- injecting context usage reminders during the conversation
+- injecting a startup policy that tells a fresh session how to continue only
+  when the user clearly asks to continue
+
+## Features
+
+- Per-turn context usage injection
+- Warning and critical thresholds
+- Automatic handoff file creation at critical threshold
+- Manual handoff creation on natural-language request
+- Handoff file supplements when the same session continues after the first
+  automatic handoff
+- Bootstrap policy injection for new sessions
+- Agent-friendly installation contract for npm, GitHub, or local path installs
+
+## Quick Start
+
+### Install from npm
 
 ```bash
 openclaw plugins install openclaw-context-handoff
@@ -30,59 +48,83 @@ openclaw gateway restart
 openclaw plugins info context-monitor
 ```
 
-### From a GitHub repository or local path
+### Install from GitHub or local source
 
 ```bash
-extensions/context-monitor/scripts/agent-install.sh <source>
+scripts/agent-install.sh https://github.com/vinsew/openclaw-context-handoff.git
 ```
 
-Examples:
+The installer script also accepts:
 
 ```bash
-extensions/context-monitor/scripts/agent-install.sh openclaw-context-handoff
-extensions/context-monitor/scripts/agent-install.sh https://github.com/<owner>/openclaw-context-handoff.git
-extensions/context-monitor/scripts/agent-install.sh /path/to/openclaw-context-handoff
+scripts/agent-install.sh openclaw-context-handoff
+scripts/agent-install.sh /path/to/openclaw-context-handoff
 ```
 
-## Default behavior
+## Default Behavior
 
-- Plugin package name: `openclaw-context-handoff`
-- Internal plugin id: `context-monitor`
-- Default handoff directory: `memory/handoff`
-- Default handoff filename prefix: `context-handoff`
-- Default warning threshold: `50`
-- Default critical threshold: `75`
+- npm package name: `openclaw-context-handoff`
+- internal plugin id: `context-monitor`
+- handoff directory: `memory/handoff`
+- handoff filename prefix: `context-handoff`
+- warning threshold: `50`
+- critical threshold: `75`
 
-The internal plugin id stays `context-monitor` so existing OpenClaw
-configuration remains compatible.
+The internal plugin id remains `context-monitor` to preserve compatibility with
+existing OpenClaw configuration.
 
 ## Configuration
 
-The plugin exposes these main config fields through
-`plugins.entries["context-monitor"].config`:
+Most users do not need manual configuration. If you do, configure
+`plugins.entries["context-monitor"].config`.
 
-- `showAlways`
-- `warnPercent`
-- `criticalPercent`
-- `handoffEnabled`
-- `handoffDir`
-- `handoffFilePrefix`
-- `handoffUseTimestamp`
-- `handoffInstruction`
+| Field | Default | Purpose |
+| --- | --- | --- |
+| `showAlways` | `false` | Show usage on every turn even below warning threshold |
+| `warnPercent` | `50` | Warning threshold |
+| `criticalPercent` | `75` | Critical threshold |
+| `handoffEnabled` | `true` | Enable bootstrap policy injection |
+| `handoffDir` | `memory/handoff` | Directory used for handoff files |
+| `handoffFilePrefix` | `context-handoff` | Handoff file prefix |
+| `handoffUseTimestamp` | `true` | Append timestamp to handoff filenames |
+| `handoffInstruction` | built-in policy | Override bootstrap policy text |
 
-Most users do not need to set anything manually.
+Detailed docs:
 
-## Agent-first publishing model
+- [Configuration](./docs/configuration.md)
+- [Behavior](./docs/behavior.md)
+- [Agent Bootstrap Contract](./AGENT-BOOTSTRAP.md)
+- [Release Guide](./docs/release.md)
 
-This repository is intentionally written so another OpenClaw agent can:
+## Example Flow
 
-1. read the repository
-2. understand the install contract
-3. install the plugin
-4. enable the plugin
-5. restart the gateway
+1. A long session crosses the warning threshold.
+2. The assistant starts warning that context usage is getting high.
+3. The session crosses the critical threshold.
+4. The plugin writes a handoff file automatically.
+5. The assistant tells the user to start a new conversation and say
+   "continue".
+6. The new session reads the latest handoff file only if the user makes that
+   intent explicit.
 
-For that reason, [AGENT-BOOTSTRAP.md](/Users/wangyiyang/.openclaw/extensions/context-monitor/AGENT-BOOTSTRAP.md) is part of the public interface of this project.
+## Repository Standards
+
+This repository is set up so another OpenClaw agent can read it and install the
+plugin without hand-editing `openclaw.json`.
+
+Project docs included in this repository:
+
+- [Contributing](./CONTRIBUTING.md)
+- [Security](./SECURITY.md)
+- [Changelog](./CHANGELOG.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+
+## Contributing
+
+Small fixes and documentation improvements are welcome. For anything larger,
+open an issue first so we can align on behavior before changing plugin logic.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
 ## License
 

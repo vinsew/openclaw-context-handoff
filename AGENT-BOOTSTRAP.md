@@ -24,7 +24,7 @@ The plugin supports:
 Use this exact order for idempotent behavior:
 
 1. If source is GitHub URL, clone:
-   - `git clone --depth=1 <repo-url> /tmp/context-monitor-source`
+   - `git clone --depth=1 <repo-url> /tmp/openclaw-context-handoff-source`
 2. Install plugin:
    - `openclaw plugins install <source-or-path> -l`
    - for npm spec, do not add `-l`.
@@ -52,9 +52,9 @@ extensions/context-monitor/scripts/agent-install.sh <npm-spec-or-path-or-directo
 Examples:
 
 ```bash
-extensions/context-monitor/scripts/agent-install.sh /tmp/context-handoff-source/extensions/context-monitor
-extensions/context-monitor/scripts/agent-install.sh openclaw-context-handoff
-extensions/context-monitor/scripts/agent-install.sh https://github.com/openclaw/context-handoff.git
+scripts/agent-install.sh /tmp/openclaw-context-handoff-source
+scripts/agent-install.sh openclaw-context-handoff
+scripts/agent-install.sh https://github.com/vinsew/openclaw-context-handoff.git
 ```
 
 ## 7) What you still need from user side
