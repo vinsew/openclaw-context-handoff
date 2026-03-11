@@ -1,0 +1,34 @@
+{
+  "name": "openclaw-context-handoff",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "OpenClaw plugin for context usage monitoring and automatic conversation handoff.",
+  "license": "MIT",
+  "files": [
+    "index.ts",
+    "scripts/agent-install.sh",
+    "openclaw.plugin.json",
+    "README.md",
+    "AGENT-BOOTSTRAP.md",
+    "LICENSE"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "install": {
+      "npmSpec": "openclaw-context-handoff",
+      "localPath": "extensions/context-monitor",
+      "defaultChoice": "npm"
+    }
+  },
+  "keywords": [
+    "openclaw",
+    "context-handoff",
+    "context-monitor",
+    "plugin",
+    "agentic"
+  ],
+  "author": "",
+  "main": "index.ts"
+}

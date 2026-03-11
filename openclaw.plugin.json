@@ -1,0 +1,62 @@
+{
+  "id": "context-monitor",
+  "name": "Context Handoff",
+  "version": "1.0.0",
+  "description": "Context Handoff for OpenClaw: context ratio injection, threshold alerts, and handoff handover files.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "contextWindow": {
+        "type": "number",
+        "description": "模型的上下文窗口大小（tokens），默认 200000"
+      },
+      "showAlways": {
+        "type": "boolean",
+        "description": "是否每轮都显示百分比（false=仅超阈值时显示）"
+      },
+      "warnPercent": {
+        "type": "number",
+        "description": "警告阈值百分比，默认 50"
+      },
+      "criticalPercent": {
+        "type": "number",
+        "description": "强制提醒阈值百分比，默认 75"
+      },
+      "handoffEnabled": {
+        "type": "boolean",
+        "description": "是否在新会话启动时注入上下文交接虚拟文件，默认 true"
+      },
+      "handoffDir": {
+        "type": "string",
+        "description": "交接虚拟文件存放目录（相对 workspace）"
+      },
+      "handoffFilePrefix": {
+        "type": "string",
+        "description": "交接文件名前缀，默认 context-handoff"
+      },
+      "handoffUseTimestamp": {
+        "type": "boolean",
+        "description": "文件名是否带时间戳后缀，默认 true"
+      },
+      "handoffInstruction": {
+        "type": "string",
+        "description": "启动时注入的交接提示模板（必须明确“仅在用户明确继续意图时才读取交接文件”）"
+      },
+      "charsPerToken": {
+        "type": "number",
+        "description": "每 token 平均字符数（中文约2.5，英文约4），默认 3"
+      }
+    }
+  },
+  "uiHints": {
+    "contextWindow": { "label": "Context Window (tokens)", "placeholder": "200000" },
+    "warnPercent": { "label": "Warning Threshold (%)", "placeholder": "50" },
+    "criticalPercent": { "label": "Critical Threshold (%)", "placeholder": "75" },
+    "handoffEnabled": { "label": "Enable Handoff Bootstrap Injection", "placeholder": "true" },
+    "handoffDir": { "label": "Handoff Dir", "placeholder": "memory/handoff" },
+    "handoffFilePrefix": { "label": "Handoff Filename Prefix", "placeholder": "context-handoff" },
+    "handoffUseTimestamp": { "label": "Handoff Filename With Timestamp", "placeholder": "true" },
+    "handoffInstruction": { "label": "Handoff Bootstrap Instruction", "placeholder": "默认不自动读取交接；仅当用户说“继续/接着聊/resume”时读取最新文件" }
+  }
+}
