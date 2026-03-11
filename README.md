@@ -4,8 +4,12 @@
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-plugin-black.svg)](https://github.com/vinsew/openclaw-context-handoff)
 
-`openclaw-context-handoff` is an OpenClaw plugin for monitoring context usage
-and handing conversations off safely before a session gets too full.
+Give every long OpenClaw conversation a safe, resumable handoff.
+
+`openclaw-context-handoff` is an OpenClaw plugin that watches context usage,
+warns before a session gets too full, writes a handoff file automatically at
+the critical threshold, and teaches the next session how to continue only when
+the user clearly asks to continue.
 
 It is built for agent-first workflows:
 
@@ -14,6 +18,13 @@ It is built for agent-first workflows:
 - automatically write a handoff file at the critical threshold
 - let a new session continue from the latest handoff when the user says
   "continue", "resume", or similar
+
+## At a Glance
+
+```text
+Long conversation -> context gets high -> plugin writes handoff ->
+user starts a new session -> user says "continue" -> work resumes cleanly
+```
 
 ## Why this exists
 
@@ -25,6 +36,28 @@ This plugin standardizes that flow by doing two things:
 - injecting context usage reminders during the conversation
 - injecting a startup policy that tells a fresh session how to continue only
   when the user clearly asks to continue
+
+## What It Feels Like
+
+### During a long session
+
+```text
+Current context usage: 78% (156,000 / 200,000 tokens), remaining 22%.
+System reminder: this conversation is at the critical threshold.
+I already wrote a handoff file for you.
+Start a new session and simply say: continue
+```
+
+### In the next session
+
+```text
+User: continue
+
+Assistant behavior:
+- find the latest handoff file
+- read only that file
+- continue from key decisions, todos, and next steps
+```
 
 ## Features
 
@@ -60,6 +93,16 @@ The installer script also accepts:
 scripts/agent-install.sh openclaw-context-handoff
 scripts/agent-install.sh /path/to/openclaw-context-handoff
 ```
+
+## How It Works
+
+1. The plugin injects context usage into each turn.
+2. At the warning threshold, it nudges the assistant to prepare for handoff.
+3. At the critical threshold, it writes a handoff file automatically.
+4. If the current session keeps going, new important user input can be added to
+   that handoff file.
+5. In a fresh session, the assistant reads the latest handoff only if the user
+   explicitly signals continuation intent.
 
 ## Default Behavior
 
@@ -118,6 +161,13 @@ Project docs included in this repository:
 - [Security](./SECURITY.md)
 - [Changelog](./CHANGELOG.md)
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
+
+## Who This Is For
+
+- OpenClaw users who regularly hit long-session context limits
+- Agent-first workflows where users want to say "continue" instead of manually
+  pointing to files
+- Plugin builders who want a portable, installable continuity pattern
 
 ## Contributing
 
