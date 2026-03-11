@@ -12,8 +12,8 @@ Every new release note must be written in both Chinese and English.
    Update code and docs.
 2. 更新 [CHANGELOG.md](../CHANGELOG.md)，用中英双语写本次变更。  
    Update [CHANGELOG.md](../CHANGELOG.md) with bilingual notes for the release.
-3. 更新 `package.json` 中的版本号。  
-   Bump the version in `package.json`.
+3. 同步更新 `package.json` 和 `openclaw.plugin.json` 中的版本号。  
+   Bump the versions in both `package.json` and `openclaw.plugin.json`.
 4. 运行：
    Run:
 
@@ -48,6 +48,6 @@ npm publish --access public
 ## 备注 | Notes
 
 - npm 包名 / npm package: `openclaw-context-handoff`
-- 内部插件 ID / internal plugin id: `context-monitor`
+- 内部插件 ID / internal plugin id: `openclaw-context-handoff`
 - README、CHANGELOG 和 GitHub release 说明要保持同步  
   Keep README, CHANGELOG, and GitHub release notes aligned.

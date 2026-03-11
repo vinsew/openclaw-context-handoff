@@ -1,15 +1,17 @@
 # Behavior
 
-## New session behavior
+## System prompt behavior
 
-At session bootstrap, the plugin injects a virtual policy file telling the
-assistant:
+On user-triggered runs, the plugin injects a handoff policy into the system
+prompt. That policy tells the assistant:
 
 - do not read handoff files by default
 - only read a handoff file when the user clearly indicates continuation intent
-- read only the latest matching handoff file
+- when writing a handoff, use a workspace-relative path and report that
+  relative path back to the user
 
-This keeps fresh sessions fresh unless the user explicitly wants continuity.
+The plugin provides the rules; the Agent decides whether a handoff should
+actually be written.
 
 ## Warning behavior
 
@@ -22,19 +24,10 @@ This warning is advisory.
 
 Once context usage reaches the critical threshold:
 
-- the plugin writes a handoff file automatically
-- the assistant is instructed to move the user toward a new session
-- later user additions in the same session can be appended to that handoff file
-
-## Manual handoff behavior
-
-If the user says something like:
-
-- `write handoff`
-- `generate handoff`
-- `save handoff`
-
-the plugin writes the handoff immediately.
+- the plugin injects a stronger reminder
+- the assistant is instructed to judge whether the current progress should be
+  preserved as a handoff
+- if the assistant decides to write one, it follows the injected handoff policy
 
 ## Handoff file naming
 
@@ -47,5 +40,5 @@ By default:
 Typical filename:
 
 ```text
-context-handoff-202603111945.md
+context-handoff-202603111945123-session.md
 ```

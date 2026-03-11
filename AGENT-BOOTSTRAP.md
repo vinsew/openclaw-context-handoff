@@ -6,8 +6,8 @@ This document is for automated agent execution, not manual human use.
 Install and activate the plugin on a target OpenClaw instance so it works out of the box:
 
 - Context percentage prompt injection
-- Startup handoff bootstrap injection
-- Automatic critical-threshold handoff file writing
+- Handoff policy injection into the system prompt
+- Critical-threshold reminder injection that leaves handoff creation to the Agent
 
 ## 2) Runtime assumptions
 - `openclaw` CLI is available in PATH.
@@ -29,11 +29,11 @@ Use this exact order for idempotent behavior:
    - `openclaw plugins install <source-or-path> -l`
    - for npm spec, do not add `-l`.
 3. Enable plugin:
-   - `openclaw plugins enable context-monitor`
+   - `openclaw plugins enable openclaw-context-handoff`
 4. Restart gateway:
    - `openclaw gateway restart`
 5. Verify:
-   - `openclaw plugins info context-monitor`
+   - `openclaw plugins info openclaw-context-handoff`
 
 ## 5) Why this is zero-manual configuration
 No `openclaw.json` manual edits are required.
@@ -46,7 +46,7 @@ No `openclaw.json` manual edits are required.
 Run:
 
 ```bash
-extensions/context-monitor/scripts/agent-install.sh <npm-spec-or-path-or-directory-or-git-url>
+scripts/agent-install.sh <npm-spec-or-path-or-directory-or-git-url>
 ```
 
 Examples:

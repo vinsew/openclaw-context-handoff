@@ -1,16 +1,12 @@
 {
-  "id": "context-monitor",
+  "id": "openclaw-context-handoff",
   "name": "Context Handoff",
-  "version": "1.0.3",
-  "description": "Context Handoff for OpenClaw: context ratio injection, threshold alerts, and handoff handover files.",
+  "version": "1.0.4",
+  "description": "Context Handoff for OpenClaw: context ratio injection, threshold alerts, and handoff policy injection.",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "contextWindow": {
-        "type": "number",
-        "description": "模型的上下文窗口大小（tokens），默认 200000"
-      },
       "showAlways": {
         "type": "boolean",
         "description": "是否每轮都显示百分比（false=仅超阈值时显示）"
@@ -25,11 +21,11 @@
       },
       "handoffEnabled": {
         "type": "boolean",
-        "description": "是否在新会话启动时注入上下文交接虚拟文件，默认 true"
+        "description": "是否在 system prompt 中注入 handoff 规则，默认 true"
       },
       "handoffDir": {
         "type": "string",
-        "description": "交接虚拟文件存放目录（相对 workspace）"
+        "description": "交接文件目录（工作区相对路径）"
       },
       "handoffFilePrefix": {
         "type": "string",
@@ -41,22 +37,17 @@
       },
       "handoffInstruction": {
         "type": "string",
-        "description": "启动时注入的交接提示模板（必须明确“仅在用户明确继续意图时才读取交接文件”）"
-      },
-      "charsPerToken": {
-        "type": "number",
-        "description": "每 token 平均字符数（中文约2.5，英文约4），默认 3"
+        "description": "handoff 规则提示模板（必须明确“仅在用户明确继续意图时才读取交接文件”；插件会自动附加内部验证标记）"
       }
     }
   },
   "uiHints": {
-    "contextWindow": { "label": "Context Window (tokens)", "placeholder": "200000" },
     "warnPercent": { "label": "Warning Threshold (%)", "placeholder": "50" },
     "criticalPercent": { "label": "Critical Threshold (%)", "placeholder": "75" },
-    "handoffEnabled": { "label": "Enable Handoff Bootstrap Injection", "placeholder": "true" },
-    "handoffDir": { "label": "Handoff Dir", "placeholder": "memory/handoff" },
+    "handoffEnabled": { "label": "Enable Continuation Policy Injection", "placeholder": "true" },
+    "handoffDir": { "label": "Handoff Dir (relative)", "placeholder": "memory/handoff" },
     "handoffFilePrefix": { "label": "Handoff Filename Prefix", "placeholder": "context-handoff" },
     "handoffUseTimestamp": { "label": "Handoff Filename With Timestamp", "placeholder": "true" },
-    "handoffInstruction": { "label": "Handoff Bootstrap Instruction", "placeholder": "默认不自动读取交接；仅当用户说“继续/接着聊/resume”时读取最新文件" }
+    "handoffInstruction": { "label": "Continuation Policy Instruction", "placeholder": "默认不自动读取交接；仅当用户说“继续/接着聊/resume”时读取最新文件" }
   }
 }

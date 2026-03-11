@@ -21,7 +21,7 @@ Please open an issue first if the change affects:
 - threshold behavior
 - installation flow
 - default configuration
-- bootstrap policy
+- handoff policy injection
 
 This helps avoid shipping behavior changes that feel small in code but large in
 real usage.
@@ -29,7 +29,7 @@ real usage.
 ## Development notes
 
 - Keep ASCII by default unless a file already uses another charset.
-- Preserve the internal plugin id `context-monitor`.
+- Preserve the internal plugin id `openclaw-context-handoff`.
 - Keep the public npm install story simple.
 - Prefer natural-language instructions that agents can follow reliably.
 - Do not introduce hardcoded machine-specific paths.

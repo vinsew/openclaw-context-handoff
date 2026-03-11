@@ -6,7 +6,7 @@ Configure this plugin through:
 {
   "plugins": {
     "entries": {
-      "context-monitor": {
+      "openclaw-context-handoff": {
         "enabled": true,
         "config": {
           "warnPercent": 50,
@@ -24,7 +24,7 @@ Configure this plugin through:
 
 - Type: `boolean`
 - Default: `false`
-- Use it when you want every turn to include context usage, even before warning
+- Use it when you want every user-triggered turn to include context usage, even before warning
   threshold.
 
 ### `warnPercent`
@@ -37,39 +37,41 @@ Configure this plugin through:
 
 - Type: `number`
 - Default: `75`
-- Once usage reaches this threshold, the plugin writes a handoff file
-  automatically and pushes the conversation toward a fresh session.
+- Once usage reaches this threshold, the plugin injects a stronger reminder
+  and the Agent decides whether to create a handoff.
 
 ### `handoffEnabled`
 
 - Type: `boolean`
 - Default: `true`
-- Enables startup bootstrap policy injection for new sessions.
+- Enables handoff policy injection in the system prompt.
 
 ### `handoffDir`
 
 - Type: `string`
 - Default: `memory/handoff`
-- Relative paths resolve from the OpenClaw state directory.
+- Must be a workspace-relative path.
 
 ### `handoffFilePrefix`
 
 - Type: `string`
 - Default: `context-handoff`
-- Used when generating handoff filenames.
+- Used in the filename pattern the Agent is instructed to follow.
 
 ### `handoffUseTimestamp`
 
 - Type: `boolean`
 - Default: `true`
-- Adds a timestamp suffix to generated handoff files.
+- Controls whether the suggested filename pattern includes a timestamp suffix.
 
 ### `handoffInstruction`
 
 - Type: `string`
 - Default: built-in instruction
-- Lets you override the bootstrap policy if your workflow needs different
-  wording.
+- Lets you override the injected handoff policy text if your workflow needs
+  different wording.
+- The plugin automatically prepends an internal verification marker, so custom
+  wording still shows up as `present` in debug logs when injection succeeds.
 
 ## Recommended approach
 

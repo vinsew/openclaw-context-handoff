@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PLUGIN_ID="context-monitor"
+PLUGIN_ID="openclaw-context-handoff"
 PLUGIN_NPM_SPEC="openclaw-context-handoff"
 WORK_DIR="/tmp/openclaw-context-handoff"
 
@@ -11,7 +11,7 @@ Usage:
   agent-install.sh <source>
 
 Example:
-  agent-install.sh /path/to/context-monitor
+  agent-install.sh /path/to/openclaw-context-handoff
   agent-install.sh openclaw-context-handoff
   agent-install.sh https://github.com/example/openclaw-context-handoff.git
 EOF
@@ -46,18 +46,18 @@ if [[ "$SOURCE" =~ ^(https?://|git@|ssh://) ]]; then
   elif [[ -f "$WORK_DIR/extensions/context-monitor/index.ts" && -f "$WORK_DIR/extensions/context-monitor/openclaw.plugin.json" ]]; then
     SOURCE="$WORK_DIR/extensions/context-monitor"
   else
-    echo "Cannot find context-monitor plugin in cloned source: $SOURCE" >&2
+    echo "Cannot find openclaw-context-handoff plugin in cloned source: $SOURCE" >&2
     exit 2
   fi
-elif [[ "${SOURCE:-}" == "$PLUGIN_NPM_SPEC" || "${SOURCE:-}" == *@* ]]; then
-  echo "Installing Context Handoff from npm spec: $SOURCE"
-  openclaw plugins install "$SOURCE"
 elif [[ -d "$SOURCE" ]]; then
   echo "Installing Context Handoff from local path: $SOURCE"
   openclaw plugins install "$SOURCE" -l
+elif [[ "${SOURCE:-}" == "$PLUGIN_NPM_SPEC" || "${SOURCE:-}" == *@* ]]; then
+  echo "Installing Context Handoff from npm spec: $SOURCE"
+  openclaw plugins install "$SOURCE"
 else
   # Path-like fallback: if it looks like a local path but does not exist, fail early.
-  if [[ "$SOURCE" == ./* || "$SOURCE" == ../* || "$SOURCE" == /* || "$SOURCE" == *"/"*" ]]; then
+  if [[ "$SOURCE" == ./* || "$SOURCE" == ../* || "$SOURCE" == /* || "$SOURCE" == */* ]]; then
     echo "Invalid local path: $SOURCE" >&2
     exit 2
   fi
@@ -71,4 +71,4 @@ openclaw plugins enable "$PLUGIN_ID"
 openclaw gateway restart
 openclaw plugins info "$PLUGIN_ID"
 
-echo "Context Monitor install flow completed."
+echo "Context Handoff install flow completed."

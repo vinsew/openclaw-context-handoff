@@ -9,28 +9,27 @@
 
 ## 简介 | Overview
 
-`openclaw-context-handoff` 是一个 OpenClaw 插件，用来监控会话上下文占比，并在对话接近上限时自动生成交接文件，让用户可以在新会话里通过一句“继续”平滑接续之前的工作。
+`openclaw-context-handoff` 是一个 OpenClaw 插件，用来监控会话上下文占比，并把交接规则注入到 Agent 的 system prompt 里，让 Agent 自己决定何时写交接、如何在新会话里继续。
 
-`openclaw-context-handoff` is an OpenClaw plugin that monitors context usage and automatically creates a handoff file when a conversation gets too full, so a new session can continue cleanly with a simple "continue" style intent.
+`openclaw-context-handoff` is an OpenClaw plugin that monitors context usage and injects handoff rules into the agent system prompt, so the agent can decide when to write a handoff and how to continue in a fresh session.
 
 ## 核心能力 | Features
 
-- 每轮注入上下文使用比例 / Inject context usage on every turn
+- 在用户触发轮次注入上下文使用信息 / Inject context usage on user-triggered turns
 - 到达预警阈值时提醒 / Warn at the configured threshold
-- 到达 critical 阈值时自动写交接文件 / Automatically write a handoff file at the critical threshold
-- 支持用户自然语言手动触发交接 / Support manual handoff requests in natural language
-- 同一会话继续时可补充交接内容 / Append follow-up notes if the same session continues
-- 新会话启动时注入“继续规则”虚拟文件 / Inject a bootstrap continuation policy for new sessions
+- 到达 critical 阈值时注入强提醒 / Inject a stronger reminder at the critical threshold
+- 通过 system prompt 注入交接规范 / Inject the handoff policy into the system prompt
+- 新会话里只在用户明确“继续”时允许读取交接 / Only allow handoff reading when the user explicitly asks to continue
 - 兼容 npm、GitHub 仓库和本地路径安装 / Support npm, GitHub, and local-path installs
 
 ## 一眼看懂 | At a Glance
 
 ```text
-长对话 -> 上下文变高 -> 插件自动写交接 ->
-用户开启新会话 -> 说“继续” -> AI 读取最新交接并接着做
+长对话 -> 上下文变高 -> 插件注入 handoff 规则与提醒 ->
+Agent 自己判断并写交接 -> 用户开启新会话说“继续” -> AI 读取最新交接并接着做
 
-Long conversation -> context gets high -> plugin writes handoff ->
-user starts a new session -> says "continue" -> AI resumes from latest handoff
+Long conversation -> context gets high -> plugin injects handoff rules and reminders ->
+the agent decides to write a handoff -> user starts a new session and says "continue" -> AI resumes from the latest handoff
 ```
 
 ## 为什么需要它 | Why This Exists
@@ -50,13 +49,13 @@ This plugin turns that problem into a portable, installable, reusable workflow.
 ```text
 当前上下文使用：78%（156,000 / 200,000 tokens），剩余 22%。
 系统提醒：当前会话已到 critical 阈值。
-我已经为你写好交接文件。
-请开启一个新会话，并直接告诉我：“继续”。
+我需要判断当前进展是否值得写交接；如果值得，我会按 handoff 规则写入文件并告诉你相对路径。
+如需在新会话继续，你直接说“继续”。
 
 Current context usage: 78% (156,000 / 200,000 tokens), remaining 22%.
 System reminder: this session has reached the critical threshold.
-I already wrote a handoff file for you.
-Start a new session and simply say: continue
+I now decide whether the current progress deserves a handoff; if it does, I write it and tell you the relative path.
+If you want to continue in a fresh session, simply say: continue
 ```
 
 ### 新会话里继续时 | When continuing in the next session
@@ -76,9 +75,9 @@ AI 行为 / Assistant behavior:
 
 ```bash
 openclaw plugins install openclaw-context-handoff
-openclaw plugins enable context-monitor
+openclaw plugins enable openclaw-context-handoff
 openclaw gateway restart
-openclaw plugins info context-monitor
+openclaw plugins info openclaw-context-handoff
 ```
 
 ### 通过 GitHub 或本地路径安装 | Install from GitHub or local source
@@ -98,46 +97,46 @@ scripts/agent-install.sh /path/to/openclaw-context-handoff
 
 ## 工作方式 | How It Works
 
-1. 插件在每轮对话中注入上下文使用比例。  
-   The plugin injects context usage into each turn.
-2. 达到 warning 阈值后，AI 会开始提醒用户准备交接。  
-   After the warning threshold, the assistant starts nudging the user toward handoff.
-3. 达到 critical 阈值后，插件自动写入交接文件。  
-   At the critical threshold, the plugin writes a handoff file automatically.
-4. 如果当前会话继续产生新信息，插件可以把新增内容补进同一份交接文件。  
-   If the same session continues, the plugin can append new information to the same handoff file.
+1. 插件在用户触发的对话轮次里注入上下文使用比例。  
+   The plugin injects context usage into user-triggered turns.
+2. 插件把 handoff 规范注入到 system prompt。  
+   The plugin injects the handoff policy into the system prompt.
+3. 达到 warning / critical 阈值后，插件只提供提醒，不替 Agent 决定是否写文件。  
+   At warning / critical thresholds, the plugin adds reminders but does not decide file creation for the agent.
+4. 是否写交接、写什么、何时写，全部由 Agent 根据用户意图和任务进展自行决定。  
+   Whether to write a handoff, what to include, and when to do it are all Agent decisions.
 5. 新会话只有在用户明确表达“继续”意图时，才会读取最新交接文件。  
    A fresh session reads the latest handoff file only when the user clearly signals continuation intent.
 
 ## 默认行为 | Default Behavior
 
 - 包名 / npm package: `openclaw-context-handoff`
-- 内部插件 ID / internal plugin id: `context-monitor`
+- 内部插件 ID / internal plugin id: `openclaw-context-handoff`
 - 交接目录 / handoff directory: `memory/handoff`
 - 文件名前缀 / filename prefix: `context-handoff`
 - 预警阈值 / warning threshold: `50`
 - critical 阈值 / critical threshold: `75`
 
-内部插件 ID 保持为 `context-monitor`，这样可以继续兼容现有的 OpenClaw 配置。
+内部插件 ID 统一为 `openclaw-context-handoff`，与公开 npm 包名保持一致。
 
-The internal plugin id stays `context-monitor` so existing OpenClaw configuration remains compatible.
+The internal plugin id is now `openclaw-context-handoff`, matching the public npm package name.
 
 ## 配置项 | Configuration
 
-多数用户不需要手动配置。如果需要，可以配置 `plugins.entries["context-monitor"].config`。
+多数用户不需要手动配置。如果需要，可以配置 `plugins.entries["openclaw-context-handoff"].config`。
 
-Most users do not need manual configuration. If needed, configure `plugins.entries["context-monitor"].config`.
+Most users do not need manual configuration. If needed, configure `plugins.entries["openclaw-context-handoff"].config`.
 
 | 字段 Field | 默认值 Default | 说明 Description |
 | --- | --- | --- |
-| `showAlways` | `false` | 每轮都显示上下文占比 / Show usage on every turn |
+| `showAlways` | `false` | 每个用户触发轮次都显示上下文占比 / Show usage on every user-triggered turn |
 | `warnPercent` | `50` | 预警阈值 / Warning threshold |
-| `criticalPercent` | `75` | 自动交接阈值 / Automatic handoff threshold |
-| `handoffEnabled` | `true` | 是否启用启动时继续规则注入 / Enable bootstrap policy injection |
-| `handoffDir` | `memory/handoff` | 交接文件目录 / Handoff directory |
+| `criticalPercent` | `75` | critical 强提醒阈值 / Critical reminder threshold |
+| `handoffEnabled` | `true` | 是否启用 handoff 规则注入 / Enable handoff policy injection |
+| `handoffDir` | `memory/handoff` | 工作区相对交接目录 / Workspace-relative handoff directory |
 | `handoffFilePrefix` | `context-handoff` | 文件名前缀 / Filename prefix |
 | `handoffUseTimestamp` | `true` | 是否附带时间戳 / Append timestamp to filenames |
-| `handoffInstruction` | built-in policy | 覆盖默认继续规则 / Override bootstrap policy text |
+| `handoffInstruction` | built-in policy | 覆盖默认继续规则（插件会自动附加内部验证标记） / Override continuation policy text (the plugin automatically adds an internal verification marker) |
 
 详细文档：
 
@@ -156,10 +155,10 @@ Detailed docs:
    The assistant starts warning that context usage is getting high.
 3. 会话达到 critical 阈值。  
    The session reaches the critical threshold.
-4. 插件自动写入交接文件。  
-   The plugin writes a handoff file automatically.
-5. AI 告诉用户开启新会话并直接说“继续”。  
-   The assistant tells the user to start a new conversation and say "continue".
+4. Agent 根据 system prompt 里的 handoff 规则自行决定是否写交接。  
+   The agent decides whether to write a handoff based on the injected system policy.
+5. AI 如写入交接，会告诉用户相对路径并提示新会话可直接说“继续”。  
+   If a handoff is written, the assistant reports the relative path and suggests saying "continue" in a new session.
 6. 新会话只在用户明确表达继续意图时才读取最新交接。  
    The new session reads the latest handoff only when the user explicitly asks to continue.
 

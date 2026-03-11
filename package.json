@@ -1,8 +1,8 @@
 {
   "name": "openclaw-context-handoff",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
-  "description": "OpenClaw plugin for context usage monitoring and automatic conversation handoff.",
+  "description": "OpenClaw plugin for context usage monitoring and handoff policy injection.",
   "license": "MIT",
   "author": "vinsew",
   "homepage": "https://github.com/vinsew/openclaw-context-handoff#readme",
@@ -22,6 +22,13 @@
     "openclaw.plugin.json",
     "README.md",
     "AGENT-BOOTSTRAP.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
+    "docs/configuration.md",
+    "docs/behavior.md",
+    "docs/release.md",
     "LICENSE"
   ],
   "openclaw": {
@@ -30,7 +37,6 @@
     ],
     "install": {
       "npmSpec": "openclaw-context-handoff",
-      "localPath": "extensions/context-monitor",
       "defaultChoice": "npm"
     }
   },

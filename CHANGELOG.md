@@ -3,6 +3,44 @@
 所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
+## 1.0.4 - 2026-03-12
+
+### 中文
+
+- 重构插件职责边界：插件只负责注入 handoff 规则与上下文信号，不再直接写交接文件
+- 将 handoff 路径语义统一为工作区相对路径，默认仍为 `memory/handoff`
+- 移除基于内部启动文案的脆弱首轮判断逻辑，改为对用户触发轮次稳定注入 handoff policy
+- 收紧触发边界：仅在 `ctx.trigger === "user"` 的轮次注入 handoff policy
+- 修复 token 用量刷新路径，改为优先按 `sessionId` 读取 transcript
+- 将 transcript token 刷新改为尾部扫描，并补齐和 OpenClaw `/status` 更接近的 context window / fresh token fallback 语义
+- 为默认和自定义 handoffInstruction 统一附加内部 marker，避免日志误报 `missing`
+- 删除已失效的 `contextWindow` 和 `charsPerToken` 配置项
+- 将内部插件 ID 统一为 `openclaw-context-handoff`，不再保留旧的 `context-monitor` 兼容名
+- 将调试日志文件统一为 `openclaw-context-handoff.debug.log`
+- 修复 `llm_input` 调试日志依赖缺失 `trigger` 的问题，改为按实际注入事件追踪最终 `present/missing`
+- 为 pending handoff policy 验证日志补充 `agent_end` 清理，避免异常中断后残留状态污染后续日志
+- 删除过时的本地安装路径声明，避免独立仓库场景下给出错误的 local install 提示
+- 修复安装脚本对带 `@` 的本地路径误判，并把 README 链接到的 docs 一起纳入 npm 包
+- 更新发布说明，要求同步更新 `package.json` 与 `openclaw.plugin.json` 版本号
+
+### English
+
+- Reworked the plugin boundary so it only injects handoff rules and context signals instead of writing handoff files directly
+- Unified handoff path semantics as workspace-relative paths, still defaulting to `memory/handoff`
+- Removed the fragile first-turn detection based on internal startup prompt wording and switched to stable policy injection for user-triggered runs
+- Tightened the trigger boundary so handoff policy injection only runs when `ctx.trigger === "user"`
+- Fixed token usage refresh to prefer session transcripts addressed by `sessionId`
+- Switched transcript token refresh to tail scanning and aligned context-window / fresh-token fallback behavior more closely with OpenClaw `/status`
+- Added a stable internal marker to both default and custom handoff instructions so logs no longer misreport successful injection as `missing`
+- Removed the stale `contextWindow` and `charsPerToken` configuration knobs
+- Unified the internal plugin id as `openclaw-context-handoff` and dropped the old `context-monitor` compatibility id
+- Renamed the debug log file to `openclaw-context-handoff.debug.log`
+- Fixed `llm_input` debug logging so final `present/missing` verification no longer depends on a missing `trigger` field
+- Added `agent_end` cleanup for pending handoff-policy verification logs so aborted runs do not leak stale debug state
+- Removed the stale bundled local install path so standalone clones no longer surface a broken local install hint
+- Fixed installer path detection for local directories containing `@`, and bundled the README-linked docs into the npm package
+- Updated the release guide so both `package.json` and `openclaw.plugin.json` versions must be bumped together
+
 ## 1.0.3 - 2026-03-11
 
 ### 中文
