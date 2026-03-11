@@ -1,8 +1,20 @@
 # Changelog
 
+所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
 ## 1.0.1 - 2026-03-11
+
+### 中文
+
+- 完善了公开开源版本的项目文档
+- 新增贡献指南、安全说明、更新记录和行为准则
+- 新增配置说明、行为说明和发布说明文档
+- 新增 GitHub issue 模板和 pull request 模板
+- 完善了 GitHub 仓库的公开项目信息
+- 重新发布 npm 包，使 npm 页面同步最新公开文档
+
+### English
 
 - Polished the public open source documentation
 - Added contributing, security, changelog, and code of conduct documents
@@ -12,6 +24,20 @@ All notable changes to this project will be documented in this file.
 - Republished npm package so the package page reflects the public project docs
 
 ## 1.0.0 - 2026-03-11
+
+### 中文
+
+- 首次公开发布
+- 新增每轮上下文使用比例注入
+- 新增 warning 和 critical 阈值逻辑
+- 新增达到 critical 阈值时自动写交接文件
+- 新增手动触发交接支持
+- 新增新会话启动时的继续规则注入
+- 新增面向 agent 的安装契约和安装脚本
+- 发布 npm 包 `openclaw-context-handoff`
+- 在 GitHub 上开源项目
+
+### English
 
 - Initial public release
 - Added per-turn context usage injection
