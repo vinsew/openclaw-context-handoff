@@ -28,7 +28,16 @@ function resolveHandoffDir(stateDir: string, handoffDir: string) {
 }
 
 function formatTimestamp() {
-  return new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 12);
+  return new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 17);
+}
+
+function sanitizePathSegment(value: string, fallback = "session") {
+  const normalized = (value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+  return normalized || fallback;
 }
 
 function extractText(content: unknown): string {
@@ -144,7 +153,7 @@ function buildBootstrapInstruction(options: { handoffDir: string; handoffFilePre
     "默认规则：在新会话中，除非用户明确说出“继续 / 接着聊 / 继续上次对话 / resume”，否则**不要**读取任何交接文件。",
     "",
     `交接目录固定为：${options.handoffDir}`,
-    `文件名规则前缀：${options.handoffFilePrefix}，建议格式：${options.handoffFilePrefix}-YYYYMMDDHHMM.md（时间戳后缀）`,
+    `文件名规则前缀：${options.handoffFilePrefix}，建议格式：${options.handoffFilePrefix}-YYYYMMDDHHMMSSsss-session.md`,
     "",
     "新会话中，当用户明确说“继续”时：",
     "1. 在上述目录找最新时间戳的交接文件；",
@@ -159,9 +168,11 @@ function buildHandoffPath(
   handoffDir: string,
   handoffFilePrefix: string,
   handoffUseTimestamp: boolean,
+  sessionKey: string,
 ) {
   const stamp = handoffUseTimestamp ? `-${formatTimestamp()}` : "";
-  const basename = `${handoffFilePrefix}${stamp}.md`;
+  const sessionSuffix = `-${sanitizePathSegment(sessionKey)}`;
+  const basename = `${handoffFilePrefix}${stamp}${sessionSuffix}.md`;
   return join(handoffDir, basename);
 }
 
@@ -252,7 +263,8 @@ function debugLog(msg: string) {
   const logLine = `[${new Date().toISOString()}] ${msg}\n`;
   const debugPath = join(resolveStateDir(), "logs", "context-monitor.debug.log");
   try {
-    appendFileSync(logPath, logLine);
+    mkdirSync(dirname(debugPath), { recursive: true });
+    appendFileSync(debugPath, logLine);
   } catch {}
   console.log(msg);
 }
@@ -302,7 +314,12 @@ export default function register(api: any) {
       return existing.path;
     }
 
-    const path = buildHandoffPath(handoffDir, handoffFilePrefix, handoffUseTimestamp);
+    const path = buildHandoffPath(
+      handoffDir,
+      handoffFilePrefix,
+      handoffUseTimestamp,
+      sessionKey,
+    );
     handoffState.set(sessionKey, {
       path,
       lastUserSig: "",

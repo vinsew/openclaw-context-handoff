@@ -3,6 +3,20 @@
 所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
+## 1.0.3 - 2026-03-11
+
+### 中文
+
+- 修复调试日志路径变量写错，确保失败信息会落盘到 `context-monitor.debug.log`
+- 修复交接文件名在同一分钟内可能冲突的问题，改为使用更高精度时间戳并附带会话标识
+- 更新默认交接文件命名说明，和实际生成规则保持一致
+
+### English
+
+- Fixed the debug log path typo so failures are persisted to `context-monitor.debug.log`
+- Fixed same-minute handoff filename collisions by using a higher-precision timestamp plus a session-specific suffix
+- Updated the default handoff filename guidance so the docs match the generated filenames
+
 ## 1.0.2 - 2026-03-11
 
 ### 中文
