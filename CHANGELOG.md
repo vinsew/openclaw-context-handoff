@@ -3,6 +3,22 @@
 所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
+## 1.0.2 - 2026-03-11
+
+### 中文
+
+- 将 README 调整为中英双语首页
+- 将发布说明文档改为中英双语规范
+- 同步现有版本说明到中英双语格式
+- 重新发布 npm 包，使 npm 页面同步最新双语 README
+
+### English
+
+- Turned the README into a bilingual Chinese-English landing page
+- Updated the release guide to require bilingual release notes
+- Synced the existing release messaging to a bilingual format
+- Republished the npm package so the npm page reflects the latest bilingual README
+
 ## 1.0.1 - 2026-03-11
 
 ### 中文
