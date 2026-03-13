@@ -7,7 +7,7 @@ Install and activate the plugin on a target OpenClaw instance so it works out of
 
 - Context percentage prompt injection
 - Handoff policy injection into the system prompt
-- Critical-threshold reminder injection that leaves handoff creation to the Agent
+- Critical-threshold reminder injection that makes handoff execution mandatory
 
 ## 2) Runtime assumptions
 - `openclaw` CLI is available in PATH.

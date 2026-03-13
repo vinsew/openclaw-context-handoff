@@ -9,9 +9,9 @@
 
 ## 简介 | Overview
 
-`openclaw-context-handoff` 是一个 OpenClaw 插件，用来监控会话上下文占比，并把交接规则注入到 Agent 的 system prompt 里，让 Agent 自己决定何时写交接、如何在新会话里继续。
+`openclaw-context-handoff` 是一个 OpenClaw 插件，用来监控会话上下文占比，并把交接规则注入到 Agent 的 system prompt 里，让 Agent 在触发规则时写出一份足够给新 AI 实例无缝接棒的完整交接报告。
 
-`openclaw-context-handoff` is an OpenClaw plugin that monitors context usage and injects handoff rules into the agent system prompt, so the agent can decide when to write a handoff and how to continue in a fresh session.
+`openclaw-context-handoff` is an OpenClaw plugin that monitors context usage and injects handoff rules into the agent system prompt, so the agent writes a full handoff report when the rules fire, detailed enough for a fresh AI instance to continue seamlessly.
 
 ## 核心能力 | Features
 
@@ -26,10 +26,10 @@
 
 ```text
 长对话 -> 上下文变高 -> 插件注入 handoff 规则与提醒 ->
-Agent 自己判断并写交接 -> 用户开启新会话说“继续” -> AI 读取最新交接并接着做
+触发规则就必须写交接 -> 用户开启新会话说“继续” -> AI 读取最新交接并接着做
 
 Long conversation -> context gets high -> plugin injects handoff rules and reminders ->
-the agent decides to write a handoff -> user starts a new session and says "continue" -> AI resumes from the latest handoff
+the trigger fires so the agent must write a full handoff report -> user starts a new session and says "continue" -> AI resumes from the latest handoff
 ```
 
 ## 为什么需要它 | Why This Exists
@@ -49,12 +49,12 @@ This plugin turns that problem into a portable, installable, reusable workflow.
 ```text
 当前上下文使用：78%（156,000 / 200,000 tokens），剩余 22%。
 系统提醒：当前会话已到 critical 阈值。
-我需要判断当前进展是否值得写交接；如果值得，我会按 handoff 规则写入文件并告诉你相对路径。
+我必须在这一轮写一份完整交接报告，并告诉你相对路径。
 如需在新会话继续，你直接说“继续”。
 
 Current context usage: 78% (156,000 / 200,000 tokens), remaining 22%.
 System reminder: this session has reached the critical threshold.
-I now decide whether the current progress deserves a handoff; if it does, I write it and tell you the relative path.
+I must write a full handoff report according to the injected rules and tell you the relative path.
 If you want to continue in a fresh session, simply say: continue
 ```
 
@@ -66,7 +66,8 @@ If you want to continue in a fresh session, simply say: continue
 AI 行为 / Assistant behavior:
 - 找到最新的交接文件 / find the latest handoff file
 - 只读取这一份 / read only that file
-- 从关键决策、待办、下一步继续 / continue from key decisions, todos, and next steps
+- 把整份交接报告当成主要接棒上下文读完 / read the full handoff report as the main continuation context
+- 优先依据报告里保留的细节继续 / continue using the preserved details in that report
 ```
 
 ## 安装方式 | Installation
@@ -101,12 +102,33 @@ scripts/agent-install.sh /path/to/openclaw-context-handoff
    The plugin injects context usage into user-triggered turns.
 2. 插件把 handoff 规范注入到 system prompt。  
    The plugin injects the handoff policy into the system prompt.
-3. 达到 warning / critical 阈值后，插件只提供提醒，不替 Agent 决定是否写文件。  
-   At warning / critical thresholds, the plugin adds reminders but does not decide file creation for the agent.
-4. 是否写交接、写什么、何时写，全部由 Agent 根据用户意图和任务进展自行决定。  
-   Whether to write a handoff, what to include, and when to do it are all Agent decisions.
+3. 达到 warning 阈值后，插件提醒 Agent 开始准备 handoff。  
+   After the warning threshold, the plugin tells the agent to start preparing a handoff.
+4. 达到 critical 阈值或用户明确要求写交接时，Agent 必须执行交接，不得主观跳过。  
+   At the critical threshold, or when the user explicitly asks for a handoff, the agent must execute it and may not skip it based on its own judgment.
 5. 新会话只有在用户明确表达“继续”意图时，才会读取最新交接文件。  
    A fresh session reads the latest handoff file only when the user clearly signals continuation intent.
+
+这意味着：只要达到 critical 阈值，或者用户明确要求写交接，就必须交接；聊天、灵感、思路讨论也不能跳过。
+
+This means that once the session reaches the critical threshold, or the user
+explicitly asks for a handoff, the assistant must write one. Casual chat,
+brainstorming, and idea exploration are not exceptions.
+
+## 交接质量标准 | Handoff Quality Bar
+
+- 不是短摘要，而是一份完整 Markdown 交接报告  
+  Not a short summary, but a full Markdown handoff report
+- 细节保留优先于简洁、篇幅和形式感  
+  Preserve details before optimizing for brevity, length, or polish
+- 目标是交给一个全新的 AI 实例后，也能无缝继续  
+  The goal is seamless continuation by a fresh AI instance
+- 必须保留容易丢失但继续时关键的信息：用户原话、命名、判断标准、关键文件、命令、报错、约束、下一步  
+  Preserve the easy-to-lose but continuation-critical details: user wording, naming, success criteria, files, commands, errors, constraints, and next steps
+- 如果不确定某个细节后续是否重要，默认保留  
+  If unsure whether a detail may matter later, keep it
+- 即使只是聊天、思路或灵感讨论，也要写出足够完整的脉络、观点、未决问题和可展开方向  
+  Even for chat, brainstorming, or idea exploration, the handoff must capture the thread, major ideas, open questions, and possible next directions
 
 ## 默认行为 | Default Behavior
 
@@ -155,10 +177,10 @@ Detailed docs:
    The assistant starts warning that context usage is getting high.
 3. 会话达到 critical 阈值。  
    The session reaches the critical threshold.
-4. Agent 根据 system prompt 里的 handoff 规则自行决定是否写交接。  
-   The agent decides whether to write a handoff based on the injected system policy.
-5. AI 如写入交接，会告诉用户相对路径并提示新会话可直接说“继续”。  
-   If a handoff is written, the assistant reports the relative path and suggests saying "continue" in a new session.
+4. Agent 按 handoff 规则强制写入交接。  
+   The agent writes a handoff as required by the injected policy.
+5. AI 告知用户相对路径，并提示新会话可直接说“继续”。  
+   The assistant reports the relative path and suggests saying "continue" in a new session.
 6. 新会话只在用户明确表达继续意图时才读取最新交接。  
    The new session reads the latest handoff only when the user explicitly asks to continue.
 

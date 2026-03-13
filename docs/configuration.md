@@ -38,7 +38,7 @@ Configure this plugin through:
 - Type: `number`
 - Default: `75`
 - Once usage reaches this threshold, the plugin injects a stronger reminder
-  and the Agent decides whether to create a handoff.
+  and the Agent must create or update a handoff.
 
 ### `handoffEnabled`
 

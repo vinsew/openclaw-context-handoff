@@ -1,6 +1,6 @@
 {
   "name": "openclaw-context-handoff",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "description": "OpenClaw plugin for context usage monitoring and handoff policy injection.",
   "license": "MIT",

@@ -3,6 +3,24 @@
 所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
+## 1.0.5 - 2026-03-13
+
+### 中文
+
+- 调整 handoff 规则：一旦达到 critical 阈值，或用户明确要求写交接，就必须执行交接
+- 去掉“由 Agent 主观判断这段对话是否值得交接”的空间，聊天、灵感、思路讨论也需要交接
+- 调整交接内容要求：没有明确任务时，至少记录本轮主题、讨论脉络、关键观点、未决问题和下一步方向
+- 提升交接质量标准：默认写成可直接交给新 AI 实例接棒的完整 Markdown 交接报告，而不是简短摘要
+- 调整 continue 规则：新会话继续时应完整读取最新交接报告，并优先依据其中保留的细节接棒
+
+### English
+
+- Updated the handoff rule so reaching the critical threshold, or receiving an explicit handoff request from the user, now makes handoff execution mandatory
+- Removed the Agent's discretion to decide whether a conversation is "worth" handing off; chat, brainstorming, and idea exploration must also be handed off
+- Updated the handoff content requirements so non-task conversations still capture the current theme, discussion thread, key points, open questions, and next direction
+- Raised the handoff quality bar so the default output is a full Markdown continuation report for a fresh AI instance, not a short summary
+- Updated the continue rule so fresh sessions should read the latest handoff report in full and continue from its preserved details
+
 ## 1.0.4 - 2026-03-12
 
 ### 中文
