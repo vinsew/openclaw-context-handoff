@@ -1,7 +1,7 @@
 {
   "id": "openclaw-context-handoff",
   "name": "Context Handoff",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Context Handoff for OpenClaw: context ratio injection, threshold alerts, and handoff policy injection.",
   "configSchema": {
     "type": "object",

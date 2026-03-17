@@ -3,6 +3,16 @@
 所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
+## 1.0.6 - 2026-03-18
+
+### 中文
+
+- 调整 warn / critical 阈值提醒文案：在接近上限时直接重述交接目录、相对路径要求、建议文件名和 continue 读取规则，避免只引用远处的启动规则导致路径口径漂移
+
+### English
+
+- Updated the warn / critical threshold reminders to restate the handoff directory, relative-path requirement, filename guidance, and continue rule inline, so late-turn reminders do not rely on distant startup policy context
+
 ## 1.0.5 - 2026-03-13
 
 ### 中文

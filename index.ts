@@ -137,6 +137,41 @@ function buildContextHandoffPolicy(options: {
   ].join("\n");
 }
 
+function buildWarnThresholdReminder(options: {
+  handoffDir: string;
+  handoffFilePrefix: string;
+  handoffUseTimestamp: boolean;
+}) {
+  const filenameExample = buildHandoffFilenameExample(
+    options.handoffFilePrefix,
+    options.handoffUseTimestamp,
+  );
+
+  return [
+    "系统提示：上下文占比较高；请开始准备 handoff。",
+    `交接目录固定为 ${options.handoffDir}，必须使用工作区相对路径；建议文件名 ${filenameExample}。`,
+    "后续只要触发 critical 或用户明确要求写交接，你就必须在该目录创建或更新一份完整的 Markdown 交接报告，并在回复里明确告知相对路径。",
+  ].join(" ");
+}
+
+function buildCriticalThresholdReminder(options: {
+  handoffDir: string;
+  handoffFilePrefix: string;
+  handoffUseTimestamp: boolean;
+}) {
+  const filenameExample = buildHandoffFilenameExample(
+    options.handoffFilePrefix,
+    options.handoffUseTimestamp,
+  );
+
+  return [
+    "系统级提醒：当前会话已到 critical 阈值。你必须在本轮创建或更新交接文件，不要判断这段内容是否值得交接。",
+    `交接目录固定为 ${options.handoffDir}，必须使用工作区相对路径；建议文件名 ${filenameExample}。`,
+    "这次请直接写一份完整的 Markdown 交接报告，并在回复里明确告知相对路径。",
+    `如果用户后续开新会话并明确说“继续 / 接着聊 / 继续上次对话 / resume”，新会话只应读取 ${options.handoffDir} 里最新的一份交接文件，并把整份报告读完后再继续。`,
+  ].join(" ");
+}
+
 function isUserTriggeredRun(ctx: any) {
   return ctx?.trigger === "user";
 }
@@ -634,6 +669,16 @@ export default function register(api: any) {
             handoffUseTimestamp,
           }),
         );
+  const warnThresholdReminder = buildWarnThresholdReminder({
+    handoffDir,
+    handoffFilePrefix,
+    handoffUseTimestamp,
+  });
+  const criticalThresholdReminder = buildCriticalThresholdReminder({
+    handoffDir,
+    handoffFilePrefix,
+    handoffUseTimestamp,
+  });
   const pendingPolicyLogs = new Map<string, number>();
 
   const resolvePendingPolicyLogKey = (ctx: any) => {
@@ -703,7 +748,7 @@ export default function register(api: any) {
         "\n\n## 🚨 Context Window Critical Alert",
         remainText,
         handoffEnabled
-          ? "系统级提醒：当前会话已到 critical 阈值。你必须在本轮创建或更新交接文件，不要判断这段内容是否值得交接；请按 system prompt 中的 handoff 规则执行，并在回复里告知相对路径。"
+          ? criticalThresholdReminder
           : "系统级提醒：当前会话已到 critical 阈值，建议尽快收束并视情况开启新会话。",
       ].join("\n");
     } else if (percent >= warnPercent) {
@@ -711,7 +756,7 @@ export default function register(api: any) {
         "\n\n## ⚠️ Context Usage Notice",
         remainText,
         handoffEnabled
-          ? "系统提示：上下文占比较高；请开始准备 handoff。只要后续触发 critical 或用户明确要求写交接，就必须立即执行交接。"
+          ? warnThresholdReminder
           : "系统提示：上下文占比较高；如后续讨论还会继续较长时间，可视情况提醒用户开新会话。",
       ].join("\n");
     } else if (showAlways) {
