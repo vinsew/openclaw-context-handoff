@@ -3,6 +3,16 @@
 所有重要变更都会记录在这里。  
 All notable changes to this project will be documented in this file.
 
+## 1.0.7 - 2026-03-24
+
+### 中文
+
+- 将 handoff 规则注入从旧的 `before_agent_start` 迁移到 `before_prompt_build`，去掉 legacy 兼容路径，让新版本 OpenClaw 只走新的 prompt 入口
+
+### English
+
+- Moved handoff policy injection from legacy `before_agent_start` to `before_prompt_build`, removing the old compatibility path so the plugin uses the newer prompt entrypoint in current OpenClaw releases
+
 ## 1.0.6 - 2026-03-18
 
 ### 中文

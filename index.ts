@@ -704,27 +704,21 @@ export default function register(api: any) {
     pendingPolicyLogs.set(pendingKey, pending - 1);
   };
 
-  const handleBeforeAgentStart = (_event: any, ctx: any) => {
-    const sessionKey = ctx?.sessionKey;
-    const pendingKey = resolvePendingPolicyLogKey(ctx);
-    if (!handoffEnabled || !isUserTriggeredRun(ctx) || !sessionKey || !pendingKey) {
-      return {};
-    }
-
-    markPendingPolicyLog(pendingKey);
-    debugLog(
-      `[openclaw-context-handoff] [before_agent_start] injecting handoff policy for session: ${sessionKey}`,
-    );
-
-    return {
-      appendSystemContext: handoffInstruction,
-    };
-  };
-
   const handlePromptBuild = (_event: any, ctx: any) => {
     const sessionKey = ctx?.sessionKey;
     if (!sessionKey || !isUserTriggeredRun(ctx)) {
       return {};
+    }
+
+    const pendingKey = resolvePendingPolicyLogKey(ctx);
+    const promptBuildResult: Record<string, string> = {};
+
+    if (handoffEnabled && pendingKey) {
+      markPendingPolicyLog(pendingKey);
+      debugLog(
+        `[openclaw-context-handoff] [before_prompt_build] injecting handoff policy for session: ${sessionKey}`,
+      );
+      promptBuildResult.appendSystemContext = handoffInstruction;
     }
 
     const usage = readSessionAndLogUsage(
@@ -763,7 +757,11 @@ export default function register(api: any) {
       prependContext = `\n[Context: ${percent}% used (${usage.used.toLocaleString()}/${usage.total.toLocaleString()} tokens)]`;
     }
 
-    return prependContext ? { prependContext } : {};
+    if (prependContext) {
+      promptBuildResult.prependContext = prependContext;
+    }
+
+    return Object.keys(promptBuildResult).length ? promptBuildResult : {};
   };
 
   const handleLlmInput = (event: any, ctx: any) => {
@@ -802,12 +800,6 @@ export default function register(api: any) {
       consumePendingPolicyLog(pendingKey);
     }
   };
-
-  api.on(
-    "before_agent_start",
-    (event: any, ctx: any) => handleBeforeAgentStart(event, ctx),
-    { priority: 50 },
-  );
 
   api.on(
     "before_prompt_build",
